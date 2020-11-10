@@ -1,7 +1,7 @@
 import React from 'react';
 import {shallow} from 'enzyme'
 import { storeFactory } from '../test/testUtils';
-import App from './App';
+import App, {UnconnectedApp} from './App';
 // redux prop test for App
 // what state? success state, needs guessedWords
 // what action creators? // needs to get secretWord
@@ -44,5 +44,26 @@ describe('App', () => {
             const getSecretWordProp = wrapper.instance().props.getSecretWord;
             expect(getSecretWordProp).toBeInstanceOf(Function);
         });
-    })
+    });
+
+    describe('Unconnected App', () => {
+        test('triggers getSecretWord on Did Mount', () => {
+            const getSecretWordMock = jest.fn();
+            const props = {
+                getSecretWord: getSecretWordMock,
+                sucess: false,
+                guessedWord: []
+            }
+            const wrapper = shallow(<UnconnectedApp {...props}/>);
+
+            // run lifecycle method
+            wrapper.instance().componentDidMount();
+
+            // check if function ran
+
+            const getSecretWordCallCount = getSecretWordMock.mock.calls.length;
+
+            expect(getSecretWordCallCount).toBe(1);
+        });
+    });
 })

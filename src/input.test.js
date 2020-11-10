@@ -2,7 +2,7 @@ import React from 'react';
 import {shallow} from 'enzyme';
 
 import {findByTestAttr, storeFactory} from '../test/testUtils';
-import Input from './Input';
+import Input, {UnconnectedInput} from './Input';
 
 const setup = (initialState={}) => {
     const store = storeFactory(initialState);
@@ -74,4 +74,47 @@ describe('redux props', () => {
         const guessWordProp = wrapper.instance().props.guessWord;
         expect(guessWordProp).toBeInstanceOf(Function);
     });
-})
+});
+
+// export unconnect
+// mock guessWord
+// with mock as prop
+// simulate click on submit button
+describe('Click on submit calls action creator', () => {
+    let guessWordMock;
+    let wrapper; 
+    const guessedWord = 'train';
+    let button = null;
+
+    beforeEach(() => {
+        guessWordMock = jest.fn();
+
+        const props = {
+            guessWord: guessWordMock
+        }
+
+        wrapper = shallow(<UnconnectedInput {...props}/>);
+
+        wrapper.setState({currentGuess: guessedWord});
+
+        button = findByTestAttr(wrapper, 'submit-button');
+
+        button.simulate('click', {preventDefault() {}});
+
+    })
+    test('Calls submit function when clicked', () => {
+        const callCount = guessWordMock.mock.calls.length;
+
+        expect(callCount).toBe(1);
+    });
+
+    test('Calls submit function when clicked with correct argument', () => {
+        const guessWordArg = guessWordMock.mock.calls[0][0];
+
+        expect(guessWordArg).toBe(guessedWord);
+    });
+
+    test('input box clears on submit', () => {
+        expect(wrapper.state('currentGuess')).toBe('');
+    });
+});
